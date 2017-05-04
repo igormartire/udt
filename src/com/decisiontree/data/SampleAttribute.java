@@ -1,43 +1,42 @@
 /**
  * Decision Tree Classification With Uncertain Data (UDT)
- * Copyright (C) 2009, The Database Group, 
+ * Copyright (C) 2009, The Database Group,
  * Department of Computer Science, The University of Hong Kong
- * 
+ * <p>
  * This file is part of UDT.
- *
+ * <p>
  * UDT is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * UDT is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.decisiontree.data;
 
-import java.util.Arrays;
-
 import org.apache.log4j.Logger;
 
+import java.util.Arrays;
+
 /**
- * 
  * SampleAttribute -Stores a range data attribute with distribution represented by samples.
  *
  * @author Smith Tsang
  * @since 0.8
- *
  */
 public class SampleAttribute extends RangeAttribute {
-	
+
 	public static Logger log = Logger.getLogger(SampleAttribute.class);
 
 	private Sample[] samples;
 
+	// sum of the areas of the PDF of the current attribute, given it was once a full PDF
 	private double curFrac = 1.0;
 
 	private int startPos;
@@ -46,22 +45,22 @@ public class SampleAttribute extends RangeAttribute {
 
 	private int noSamples;
 
-	public SampleAttribute(double start, double end, 
-			Sample[] samples, boolean averaging) {
+	public SampleAttribute(double start, double end,
+						   Sample[] samples, boolean averaging) {
 		this(start, end, samples);
-		if(averaging) setValue(getAverage());
+		if (averaging) setValue(getAverage());
 	}
-	
+
 	public SampleAttribute(double start, double end, Sample[] samples) {
 		super(start, end);
 		this.samples = samples;
 		noSamples = samples.length;
 		setStartPos(-1);
-		setEndPos(noSamples-1);
+		setEndPos(noSamples - 1);
 	}
 
 	public SampleAttribute(double start, double end, double curStart,
-			double curEnd, Sample[] samples) {
+						   double curEnd, Sample[] samples) {
 		this(start, end, samples);
 		setStart(curStart);
 		setEnd(curEnd);
@@ -70,6 +69,12 @@ public class SampleAttribute extends RangeAttribute {
 
 	public SampleAttribute(SampleAttribute p, double curStart, double curEnd) {
 		this(p.getAbsStart(), p.getAbsEnd(), curStart, curEnd, p.getSamples());
+	}
+
+	public static SampleAttribute cutCopy(SampleAttribute p, double curStart,
+										  double curEnd) {
+		SampleAttribute newP = new SampleAttribute(p, curStart, curEnd);
+		return newP;
 	}
 
 	@Override
@@ -115,12 +120,12 @@ public class SampleAttribute extends RangeAttribute {
 		return startPos;
 	}
 
-	public int getEndPos() {
-		return endPos;
-	}
-
 	public void setStartPos(int startPos) {
 		this.startPos = startPos;
+	}
+
+	public int getEndPos() {
+		return endPos;
 	}
 
 	public void setEndPos(int endPos) {
@@ -293,7 +298,7 @@ public class SampleAttribute extends RangeAttribute {
 		if (startPos < 0)
 			return samples[endPos].getCDist() / getCurFrac();
 		return (samples[endPos].getCDist() - samples[startPos].getCDist())
-				/ getCurFrac();
+		  / getCurFrac();
 	}
 
 	public double getSampleValue(int pos) {
@@ -316,7 +321,7 @@ public class SampleAttribute extends RangeAttribute {
 //		log.info("average");
 		double mean = 0.0;
 		double prevCDist = 0.0, cDist = 0.0;
-		for(int i =0 ; i < noSamples; i++){
+		for (int i = 0; i < noSamples; i++) {
 			cDist = samples[i].getCDist();
 			mean += samples[i].getValue() * (cDist - prevCDist);
 			prevCDist = cDist;
@@ -357,18 +362,12 @@ public class SampleAttribute extends RangeAttribute {
 			return -1;
 	}
 
-	public static SampleAttribute cutCopy(SampleAttribute p, double curStart,
-			double curEnd) {
-		SampleAttribute newP = new SampleAttribute(p, curStart, curEnd);
-		return newP;
+	public int getNoSample() {
+		return noSamples;
 	}
 
 	public void setNoSample(int noSample) {
 		this.noSamples = noSample;
-	}
-
-	public int getNoSample() {
-		return noSamples;
 	}
 
 }

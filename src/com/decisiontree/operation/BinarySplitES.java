@@ -2,46 +2,44 @@
  * Decision Tree Classification With Uncertain Data (UDT)
  * Copyright (C) 2009, The Database Group,
  * Department of Computer Science, The University of Hong Kong
- *
+ * <p>
  * This file is part of UDT.
- *
+ * <p>
  * UDT is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * UDT is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.decisiontree.operation;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 
 import com.decisiontree.data.PointAttrClass;
 import com.decisiontree.data.SampleAttrClass;
 import com.decisiontree.eval.DispersionMeasure;
 import com.decisiontree.param.GlobalParam;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 /**
- *
  * BinarySplitES - Finds the best binary split point of an attribute using the end-pt sampling technique.
  *
  * @author Smith Tsang
  * @since 0.8
- *
  */
 public class BinarySplitES extends BinarySplitGP {
 
-	public BinarySplitES(String dispersionStr){
+	public BinarySplitES(String dispersionStr) {
 		super(dispersionStr);
 	}
-	
+
 	public BinarySplitES(DispersionMeasure dispersion) {
 		super(dispersion);
 	}
@@ -95,7 +93,7 @@ public class BinarySplitES extends BinarySplitGP {
 	}
 
 	public void run(Histogram[] segmentSet, double[] endPtSet, double[] lowerBounds,
-			SampleAttrClass[] p, double threshold) {
+					SampleAttrClass[] p, double threshold) {
 
 		pruned = true;
 		this.threshold = threshold;
@@ -118,7 +116,7 @@ public class BinarySplitES extends BinarySplitGP {
 
 			if (unpruned[i]) {
 				double bestEnt = secondLevelPruning(segmentSet[i], endPtSet, p, left,
-						right);
+				  right);
 				if (threshold - bestEnt > 1E-12) {
 					this.threshold = bestEnt;
 					localOptimal = tempOptimal;
@@ -159,7 +157,7 @@ public class BinarySplitES extends BinarySplitGP {
 	}
 
 	protected double secondLevelPruning(Histogram segment, double[] endPtSet,
-			SampleAttrClass[] attrClassSet, double[] left, double[] right) {
+										SampleAttrClass[] attrClassSet, double[] left, double[] right) {
 		double start = segment.getStart();
 		double end = segment.getEnd();
 
@@ -176,10 +174,10 @@ public class BinarySplitES extends BinarySplitGP {
 
 			for (int i = 0; i < noSegment; i++) {
 				segmentSet[i] = new Histogram(noCls, endPtSet[startEndPt + i],
-						endPtSet[startEndPt + i + 1]);
+				  endPtSet[startEndPt + i + 1]);
 			}
 
-			int currPos = -1 , prevPos = -1, startPos, endPos;
+			int currPos = -1, prevPos = -1, startPos, endPos;
 			double nextSampleValue;
 			for (int i = 0; i < endTuple; i++) {
 
@@ -187,7 +185,7 @@ public class BinarySplitES extends BinarySplitGP {
 					continue;
 
 				for (; temp < noSegment
-						&& attrClassSet[i].getStart() > segmentSet[temp].getEnd(); temp++)
+				  && attrClassSet[i].getStart() > segmentSet[temp].getEnd(); temp++)
 					;
 				if (temp >= noSegment)
 					break;
@@ -202,11 +200,11 @@ public class BinarySplitES extends BinarySplitGP {
 
 				nextSampleValue = attrClassSet[i].getSampleValue(currPos + 1);
 				for (int rtemp = temp; rtemp < noSegment
-						&& attrClassSet[i].getEnd() > segmentSet[rtemp].getStart(); rtemp++) {
+				  && attrClassSet[i].getEnd() > segmentSet[rtemp].getStart(); rtemp++) {
 					if (segmentSet[rtemp].getEnd() < nextSampleValue)
 						continue;
 					currPos = attrClassSet[i].getNearSample(currPos + 1, segmentSet[rtemp]
-							.getEnd());
+					  .getEnd());
 
 					double frac = 0.0;
 					if (currPos <= startPos)
@@ -218,7 +216,7 @@ public class BinarySplitES extends BinarySplitGP {
 
 					if (frac > 1E-12)
 						segmentSet[rtemp].addCls(attrClassSet[i].getCls(), frac
-								* attrClassSet[i].getWeight());
+						  * attrClassSet[i].getWeight());
 
 					if (currPos >= endPos || frac >= (1.0 - 1E-12))
 						break;
@@ -255,7 +253,7 @@ public class BinarySplitES extends BinarySplitGP {
 					if (threshold - tempLowerBound > 1E-14 && tempThres - tempLowerBound > 1E-14) {
 						GlobalParam.incrNoUnpEndPtSampLBs();
 						tempEnt = findEntInRegion(segmentSet[i], attrClassSet, tempLeft,
-								tempRight);
+						  tempRight);
 						if (tempThres - tempEnt > 1E-14 && threshold - tempEnt > 1E-14) {
 							tempThres = tempEnt;
 							optimal = tempOptimal;
@@ -281,7 +279,7 @@ public class BinarySplitES extends BinarySplitGP {
 
 					GlobalParam.incrNoEndPtSampIntervals();
 					if (tempThres - avgEnt > 1E-14
-							&& threshold - avgEnt > 1E-14) {
+					  && threshold - avgEnt > 1E-14) {
 						optimal = segmentSet[i].getEnd();
 						tempThres = avgEnt;
 					}
@@ -298,14 +296,14 @@ public class BinarySplitES extends BinarySplitGP {
 
 	@Override
 	protected double findEntInRegion(Histogram segment, SampleAttrClass[] attrClassSet,
-			double[] left, double[] right) {
+									 double[] left, double[] right) {
 
 		double start = segment.getStart();
 		double end = segment.getEnd();
 
 		double frac = 0;
 		ArrayList<PointAttrClass> pointAttrClassList = new ArrayList<PointAttrClass>(
-				(int) (segment.size()));
+		  (int) (segment.size()));
 
 		int endPos = binarySearch(attrClassSet, end);
 		int tempStartPos, tempEndPos;
@@ -327,7 +325,7 @@ public class BinarySplitES extends BinarySplitGP {
 				frac = attrClassSet[i].getFrac(j - 1, j);
 				segSize += frac * attrClassSet[i].getWeight();
 				pointAttrClassList.add(new PointAttrClass(attrClassSet[i].getSample(j), attrClassSet[i].getCls(),
-						frac * attrClassSet[i].getWeight()));
+				  frac * attrClassSet[i].getWeight()));
 			}
 		}
 
@@ -368,7 +366,6 @@ public class BinarySplitES extends BinarySplitGP {
 		return minEnt;
 
 	}
-
 
 
 }

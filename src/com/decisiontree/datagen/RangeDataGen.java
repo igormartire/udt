@@ -2,64 +2,51 @@
  * Decision Tree Classification With Uncertain Data (UDT)
  * Copyright (C) 2009, The Database Group,
  * Department of Computer Science, The University of Hong Kong
- *
+ * <p>
  * This file is part of UDT.
- *
+ * <p>
  * UDT is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * UDT is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.decisiontree.datagen;
-
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Random;
-
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 
 import com.decisiontree.data.PointAttribute;
 import com.decisiontree.data.PointDataSet;
 import com.decisiontree.data.PointDataSetInit;
 import com.decisiontree.data.RangeAttribute;
 import com.decisiontree.param.GlobalParam;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+
+import java.io.*;
+import java.util.Random;
 
 /**
- *
  * RangeDataGen - Generates interval-valued uncertain data from point-valued data.
  *
  * @author Smith Tsang
  * @since 0.8
- *
  */
-public class RangeDataGen implements DataGen{
-
-	private static Logger log = Logger.getLogger(RangeDataGen.class);
+public class RangeDataGen implements DataGen {
 
 	public static final int DEFAULT_PRECISION = 12;
 	protected static final int NUM_STDEV = 4;
-
-	private boolean varies;
-
-	private double[] attrRangeArray;
-
-	private int[] precisionArray;
-
+	private static Logger log = Logger.getLogger(RangeDataGen.class);
 	protected PointDataSet dataSet;
+	private boolean varies;
+	private double[] attrRangeArray;
+	private int[] precisionArray;
 
 	public RangeDataGen(String input, String nameFile, boolean varies) {
 		PointDataSetInit init = new PointDataSetInit(input, nameFile);
@@ -73,7 +60,7 @@ public class RangeDataGen implements DataGen{
 	}
 
 	public RangeDataGen(String input, String nameFile, int precision,
-			boolean varies) {
+						boolean varies) {
 		PointDataSetInit init = new PointDataSetInit(input, nameFile);
 		dataSet = init.getDataSet();
 		this.precisionArray = new int[dataSet.getNoAttr()];
@@ -81,6 +68,101 @@ public class RangeDataGen implements DataGen{
 			setPrecision(i, precision);
 		attrRangeArray = new double[dataSet.getNoAttr()];
 		this.varies = varies;
+	}
+
+	/**
+	 * This main method is for testing only
+	 *
+	 * @param args
+	 */
+	private static void main(String args[]) {
+
+		BasicConfigurator.configure();
+		Logger.getRootLogger().setLevel(Level.INFO);
+
+		try {
+
+			boolean help = false;
+
+			for (int i = 0; i < args.length; i++)
+				if (args[i].equals("-h"))
+					help = true;
+
+			if (help || args.length < 1) {
+				System.out.println("Usage: java DataGen [-d <training>]");
+				System.out.println();
+				System.out.println("Options:");
+				System.out.println();
+				System.out.println("Data Sets:");
+				System.out
+				  .println("\t-d <training>\t\tSpecify the training data for generation.");
+				System.out
+				  .println("\t-t <testing>\t\tSpecify the testing data for generation. [default: no testing data]");
+				System.out.println();
+				System.out.println("Operations:");
+				System.out
+				  .println("\t-p <IntSize>\t\tUncertain interval size [default: 0.1]");
+				System.out.println("\t-h\t\t\tHelp options");
+				System.exit(1);
+			}
+
+			//default values
+			String training = null;
+			String testing = null;
+			String nameFile = null;
+			boolean test = false;
+			boolean varies = false;
+			double width = 0.1;
+
+			for (int i = 0; i < args.length; i++) {
+
+				if (args[i].equals("-d")) {
+					training = args[++i];
+					continue;
+				}
+
+				if (args[i].equals("-t")) {
+					test = true;
+					testing = args[++i];
+					continue;
+				}
+
+				if (args[i].equals("-f")) {
+					nameFile = args[++i];
+					continue;
+				}
+
+				if (args[i].equals("-p")) {
+					width = Double.parseDouble(args[++i]);
+				}
+
+			}
+
+			if (training == null) {
+				System.out
+				  .println("Please input training set using -d option.");
+				System.exit(1);
+			}
+
+			if (nameFile == null)
+				nameFile = training;
+
+			log.info("Start generation...");
+			RangeDataGen gen = new RangeDataGen(training, nameFile, varies);
+			log.info("Initialization...");
+			double range[] = new double[gen.getNoAttr()];
+
+			for (int i = 0; i < gen.getNoAttr(); i++)
+				range[i] = width;
+
+			if (!test) gen.storeGeneratedData(training, range);
+			else
+				gen.storeGeneratedDataWithTest(training, testing, range);
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+
 	}
 
 	public int getPrecision(int pos) {
@@ -99,8 +181,7 @@ public class RangeDataGen implements DataGen{
 		precisionArray[pos] = decimalPlace;
 	}
 
-
-	public int[] getPrecisionArray(){
+	public int[] getPrecisionArray() {
 		return precisionArray;
 	}
 
@@ -115,8 +196,6 @@ public class RangeDataGen implements DataGen{
 		}
 		return attrRangeArray[pos];
 	}
-
-
 
 	public void setAttrRange(int pos, double attrRange) {
 		if (pos < 0 || pos >= attrRangeArray.length) {
@@ -175,13 +254,13 @@ public class RangeDataGen implements DataGen{
 
 	}
 
-	public void storeGeneratedData(String input, double[] width){
+	public void storeGeneratedData(String input, double[] width) {
 		BufferedWriter writer = null;
 		BufferedReader reader = null;
 
 		try {
 			writer = new BufferedWriter(new FileWriter(input
-					+ GlobalParam.RANGE_FILE));
+			  + GlobalParam.RANGE_FILE));
 
 			int noAttr = dataSet.getNoAttr();
 
@@ -196,7 +275,7 @@ public class RangeDataGen implements DataGen{
 			}
 
 			reader = new BufferedReader(new FileReader(input
-					+ GlobalParam.POINT_FILE));
+			  + GlobalParam.POINT_FILE));
 			String data = "";
 			for (int i = 0; (data = reader.readLine()) != null; i++) {
 				String dataArray[] = data.split(GlobalParam.SEPERATOR);
@@ -217,10 +296,10 @@ public class RangeDataGen implements DataGen{
 		} catch (IOException e) {
 			e.printStackTrace();
 			log.error("Cannot read or write dataset files. Please try again.");
-		}finally{
+		} finally {
 			try {
-				if(writer != null) writer.close();
-				if(reader != null) reader.close();
+				if (writer != null) writer.close();
+				if (reader != null) reader.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 
@@ -235,7 +314,7 @@ public class RangeDataGen implements DataGen{
 		BufferedReader reader = null;
 		try {
 			writer = new BufferedWriter(new FileWriter(test
-					+ GlobalParam.RANGE_FILE));
+			  + GlobalParam.RANGE_FILE));
 
 			int noAttr = dataSet.getNoAttr();
 
@@ -263,10 +342,10 @@ public class RangeDataGen implements DataGen{
 		} catch (IOException e) {
 			e.printStackTrace();
 			log.error("Cannot read or write dataset testing files. Please try again.");
-		} finally{
+		} finally {
 			try {
-				if(writer != null) writer.close();
-				if(reader != null) reader.close();
+				if (writer != null) writer.close();
+				if (reader != null) reader.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -276,10 +355,8 @@ public class RangeDataGen implements DataGen{
 
 	public void storeGeneratedDataWithTest(String training, String testing, double[] width) {
 		storeGeneratedData(training, width);
-		if(testing != null) storeGeneratedTestData(testing, width);
+		if (testing != null) storeGeneratedTestData(testing, width);
 	}
-
-
 
 	public boolean isVaries() {
 		return varies;
@@ -287,100 +364,6 @@ public class RangeDataGen implements DataGen{
 
 	public void setVaries(boolean varies) {
 		this.varies = varies;
-	}
-
-	/**
-	 * This main method is for testing only
-	 * @param args
-	 */
-	private static void main(String args[]) {
-
-	    BasicConfigurator.configure();
-	    Logger.getRootLogger().setLevel(Level.INFO);
-
-		try {
-
-			boolean help = false;
-
-			for (int i = 0; i < args.length; i++)
-				if (args[i].equals("-h"))
-					help = true;
-
-			if (help || args.length < 1) {
-				System.out.println("Usage: java DataGen [-d <training>]");
-				System.out.println();
-				System.out.println("Options:");
-				System.out.println();
-				System.out.println("Data Sets:");
-				System.out
-						.println("\t-d <training>\t\tSpecify the training data for generation.");
-				System.out
-						.println("\t-t <testing>\t\tSpecify the testing data for generation. [default: no testing data]");
-				System.out.println();
-				System.out.println("Operations:");
-				System.out
-						.println("\t-p <IntSize>\t\tUncertain interval size [default: 0.1]");
-				System.out.println("\t-h\t\t\tHelp options");
-				System.exit(1);
-			}
-
-			//default values
-			String training = null;
-			String testing = null;
-			String nameFile = null;
-			boolean test = false;
-			boolean varies = false;
-			double width = 0.1;
-
-			for (int i = 0; i < args.length; i++) {
-
-				if (args[i].equals("-d")) {
-					training = args[++i];
-					continue;
-				}
-
-				if (args[i].equals("-t")) {
-					test = true;
-					testing = args[++i];
-					continue;
-				}
-
-				if (args[i].equals("-f")) {
-					nameFile = args[++i];
-					continue;
-				}
-
-				if (args[i].equals("-p")) {
-					width = Double.parseDouble(args[++i]);
-				}
-
-			}
-
-			if (training == null) {
-				System.out
-						.println("Please input training set using -d option.");
-				System.exit(1);
-			}
-
-			if(nameFile == null)
-				nameFile = training;
-
-			log.info("Start generation...");
-			RangeDataGen gen = new RangeDataGen(training, nameFile, varies);
-			log.info("Initialization...");
-			double range[] = new double[gen.getNoAttr()];
-
-			for (int i = 0; i < gen.getNoAttr(); i++)
-				range[i] = width;
-
-			if(! test) gen.storeGeneratedData(training, range);
-			else
-				gen.storeGeneratedDataWithTest(training,testing, range);
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-
 	}
 
 

@@ -2,28 +2,23 @@
  * Decision Tree Classification With Uncertain Data (UDT)
  * Copyright (C) 2009, The Database Group,
  * Department of Computer Science, The University of Hong Kong
- *
+ * <p>
  * This file is part of UDT.
- *
+ * <p>
  * UDT is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * UDT is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.decisiontree.operation;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
 
 import com.decisiontree.data.PointAttrClass;
 import com.decisiontree.data.Sample;
@@ -31,23 +26,26 @@ import com.decisiontree.data.SampleAttribute;
 import com.decisiontree.data.Tuple;
 import com.decisiontree.param.GlobalParam;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+
 /**
- *
  * SplitSearchUnp - finding the best split point for a set of data without any
  * pruning technique.
  *
  * @author Smith Tsang
  * @since 0.8
- *
  */
 public class SplitSearchUnp extends AbstractSplitSearch {
-	
-	
-	public SplitSearchUnp(String dispersionStr){
+
+
+	public SplitSearchUnp(String dispersionStr) {
 		this(new BinarySplit(dispersionStr));
 	}
 
-	protected SplitSearchUnp(Split split){
+	protected SplitSearchUnp(Split split) {
 		super(split);
 	}
 //	public SplitSearchUnp(Dispersion dispersion){
@@ -58,25 +56,30 @@ public class SplitSearchUnp extends AbstractSplitSearch {
 //		super(dispersion);
 //		setSplit(split);
 //	}
-	
+
 	protected PointAttrClass[] generatePointAttrClass(List<Tuple> data, int attr) {
 
 		int noTuples = data.size();
 		double curFrac = 0;
 		ArrayList<PointAttrClass> attrClassList = new ArrayList<PointAttrClass>(
-				noTuples);
+		  noTuples);
 		for (int j = 0; j < noTuples; j++) {
 			SampleAttribute p = (SampleAttribute) (data.get(j)
-					.getAttribute(attr));
+			  .getAttribute(attr));
 			Sample samples[] = p.getSamples();
 			curFrac = p.getCurFrac();
 			// log.info(curFrac + " " + p.getStartPos() + " " + p.getEndPos());
 			for (int a = p.getStartPos() + 1; a <= p.getEndPos(); a++) {
+				// frac is the area of the bar of this sample in the histogram
 				double frac = samples[a].getCDist();
 				if (a != 0)
 					frac -= samples[a - 1].getCDist();
+				// as per the paper, w = w * sampleBarArea / totalLocalPDFArea
+				// dividing by the totalLocalPDFArea, it normalizes the PDF
+				// this, w = w * normalizedSampleBarArea
+				// In the end, it will have added noTuples * noSamples pointAttrClass objects
 				attrClassList.add(new PointAttrClass(samples[a], data.get(j)
-						.getCls(), data.get(j).getWeight() * frac / curFrac));
+				  .getCls(), data.get(j).getWeight() * frac / curFrac));
 			}
 		}
 
@@ -110,15 +113,16 @@ public class SplitSearchUnp extends AbstractSplitSearch {
 		int count = 0;
 		tempSegmentSet[0] = new Histogram(noCls);
 		tempSegmentSet[0].setHist(attrClassSet[0].getValue(), attrClassSet[0]
-				.getCls(), attrClassSet[0].getWeight());
+		  .getCls(), attrClassSet[0].getWeight());
 		for (int i = 1; i < attrClassSet.length; i++) {
+			// occurs when there is more than a sample in the same point
 			if (attrClassSet[i].getValue() == tempSegmentSet[count].getValue())
 				tempSegmentSet[count].setHist(attrClassSet[i].getValue(),
-						attrClassSet[i].getCls(), attrClassSet[i].getWeight());
+				  attrClassSet[i].getCls(), attrClassSet[i].getWeight());
 			else {
 				tempSegmentSet[++count] = new Histogram(noCls);
 				tempSegmentSet[count].setHist(attrClassSet[i].getValue(),
-						attrClassSet[i].getCls(), attrClassSet[i].getWeight());
+				  attrClassSet[i].getCls(), attrClassSet[i].getWeight());
 			}
 		}
 		int noSegments = count + 1;
@@ -163,16 +167,14 @@ public class SplitSearchUnp extends AbstractSplitSearch {
 		}
 
 		log.debug("Best Split: " + splitData.getAttrNum() + ", "
-				+ splitData.getSplitPt() + ", " + splitData.getDispersion());
+		  + splitData.getSplitPt() + ", " + splitData.getDispersion());
 
 		return splitData;
 	}
 
-	protected BinarySplit getSplit(){
+	protected BinarySplit getSplit() {
 		return (BinarySplit) super.getSplit();
 	}
-
-
 
 
 }

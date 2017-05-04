@@ -2,23 +2,26 @@
  * Decision Tree Classification With Uncertain Data (UDT)
  * Copyright (C) 2009, The Database Group,
  * Department of Computer Science, The University of Hong Kong
- *
+ * <p>
  * This file is part of UDT.
- *
+ * <p>
  * UDT is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * UDT is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.decisiontree.data;
+
+import com.decisiontree.param.GlobalParam;
+import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -26,49 +29,44 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-
-import com.decisiontree.param.GlobalParam;
-
 /**
- *
  * RangeDataSetInit - Initializes a RangeDataSet object.
  *
  * @author Smith Tsang
  * @since 0.8
- *
  */
-public class RangeDataSetInit extends DataSetInit{
+public class RangeDataSetInit extends DataSetInit {
 
 	private static Logger log = Logger.getLogger(RangeDataSetInit.class);
 
-	@Override
-	public RangeDataSet getDataSet(){
-		return (RangeDataSet)dataSet;
-	}
+	public RangeDataSetInit(String input) {
 
-	public RangeDataSetInit(String input){
-
-			dataSet = new RangeDataSet(input, findNoCls(input),findNoAttr(input));
-			dataSet.setClsNameList(findClsName(input));
-			preProcess(input);
-			dataSet.setNoTuples(countNoTuples(input));
-			storeData(input);
+		dataSet = new RangeDataSet(input, findNoCls(input), findNoAttr(input));
+		dataSet.setClsNameList(findClsName(input));
+		preProcess(input);
+		dataSet.setNoTuples(countNoTuples(input));
+		storeData(input);
 
 	}
 
 	/**
 	 * Constructor by input data file name
+	 *
 	 * @param input the input data file name
 	 */
 	public RangeDataSetInit(String input, String name) {
 
-		dataSet = new RangeDataSet(input,findNoCls(name), findNoAttr(name));
+		dataSet = new RangeDataSet(input, findNoCls(name), findNoAttr(name));
 		dataSet.setClsNameList(findClsName(name));
 		preProcess(name);
 		dataSet.setNoTuples(countNoTuples(input));
 		storeData(input);
 
+	}
+
+	@Override
+	public RangeDataSet getDataSet() {
+		return (RangeDataSet) dataSet;
 	}
 
 	@Override
@@ -87,17 +85,17 @@ public class RangeDataSetInit extends DataSetInit{
 		RangeDataSet db = getDataSet();
 
 		BufferedReader reader = null;
-		try{
+		try {
 
 			int noTuples = db.getNoTuples();
 
 			reader = new BufferedReader(new FileReader(input + RANGE_FILE));
 
 			String data = "";
-			List <Tuple> t = new ArrayList<Tuple>(noTuples);
-			for(int i =0; (data = reader.readLine()) != null && i < noTuples; i++){
+			List<Tuple> t = new ArrayList<Tuple>(noTuples);
+			for (int i = 0; (data = reader.readLine()) != null && i < noTuples; i++) {
 				int index = data.lastIndexOf(GlobalParam.SEPERATOR);
-				int cls = db.getClsNum(data.substring(index+1));
+				int cls = db.getClsNum(data.substring(index + 1));
 				db.setClsDistribution(cls);
 				t.add(new RangeTuple(data, db.getNoAttr(), cls));
 			}

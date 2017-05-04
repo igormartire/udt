@@ -2,23 +2,26 @@
  * Decision Tree Classification With Uncertain Data (UDT)
  * Copyright (C) 2009, The Database Group,
  * Department of Computer Science, The University of Hong Kong
- *
+ * <p>
  * This file is part of UDT.
- *
+ * <p>
  * UDT is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * UDT is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.decisiontree.data;
+
+import com.decisiontree.param.GlobalParam;
+import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -26,17 +29,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-
-import com.decisiontree.param.GlobalParam;
-
 /**
- *
  * PointDataSetInit class - Initializes a PointDB object.
  *
  * @author Smith Tsang
  * @since 0.8
- *
  */
 public class PointDataSetInit extends DataSetInit {
 
@@ -44,11 +41,12 @@ public class PointDataSetInit extends DataSetInit {
 
 	/**
 	 * Constructor by input data file name
+	 *
 	 * @param input the input data file name
 	 */
 	public PointDataSetInit(String input) {
 
-		dataSet = new PointDataSet(input,findNoCls(input), findNoAttr(input));
+		dataSet = new PointDataSet(input, findNoCls(input), findNoAttr(input));
 		dataSet.setClsNameList(findClsName(input));
 		preProcess(input);
 		dataSet.setNoTuples(countNoTuples(input));
@@ -58,11 +56,12 @@ public class PointDataSetInit extends DataSetInit {
 
 	/**
 	 * Constructor by input data file name
+	 *
 	 * @param input the input data file name
 	 */
 	public PointDataSetInit(String input, String name) {
 
-		dataSet = new PointDataSet(input,findNoCls(name), findNoAttr(name));
+		dataSet = new PointDataSet(input, findNoCls(name), findNoAttr(name));
 		dataSet.setClsNameList(findClsName(name));
 		preProcess(name);
 		dataSet.setNoTuples(countNoTuples(input));
@@ -76,10 +75,9 @@ public class PointDataSetInit extends DataSetInit {
 	}
 
 
-
 	@Override
 	public void preProcess(String input) {
-		preProcess(input,POINT_FILE);
+		preProcess(input, POINT_FILE);
 
 	}
 
