@@ -92,7 +92,7 @@ public class SampleDecisionTree extends DecisionTree {
 
 		SampleTree tree = new SampleTree(dataSet, splitSearch);
 
-		tree.constructFinalTree(false);
+		tree.constructFinalTree(true);
 
 		SampleClassification test = new SampleClassification(dataSet, splitSearch);
 
