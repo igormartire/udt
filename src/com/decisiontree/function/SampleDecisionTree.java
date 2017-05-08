@@ -105,10 +105,10 @@ public class SampleDecisionTree extends DecisionTree {
 	@Override
 	public double findAccuracy(String training, String testing, String nameFile) {
 		SampleDataSet dataSet = generateDataSet(training, nameFile, getNoSamples());
-
+		// get dataset from files, where value of an attribute is (start + end)/2 (calculated in the rangeattribute constructor)
 		SampleTree tree = new SampleTree(dataSet, splitSearch);
-
-		tree.constructFinalTree(false);
+		// somente seta valores, n faz nenhuma lógica (purity e threhsold são setados para valores detaulfts)
+		tree.constructFinalTree(true); //true para imprimir árvore no console
 
 		return findAccuracyByTree(tree.getRoot(), testing, nameFile);
 

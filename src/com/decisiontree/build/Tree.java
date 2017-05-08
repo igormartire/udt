@@ -101,7 +101,7 @@ public abstract class Tree {
 	public void constructFinalTree(boolean print) {
 		constructTree();
 		if (print) printTree(getRoot(), 0);
-		postPruning(getRoot());
+		//postPruning(getRoot());
 	}
 
 	/**

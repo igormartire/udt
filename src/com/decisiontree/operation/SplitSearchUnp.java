@@ -58,7 +58,15 @@ public class SplitSearchUnp extends AbstractSplitSearch {
 //	}
 
 	protected PointAttrClass[] generatePointAttrClass(List<Tuple> data, int attr) {
-
+		// gera o peso de cada sample
+		// o retorno eh um array do tipo [
+		//   {
+		//     sample (possui valor (no nosso caso, 0 ou 1) e cdist),
+		//     classe,
+		//     peso da sample = peso da tupla * (area da sample / peso de todas as samples)
+		//   },
+		//   ...
+		// ]
 		int noTuples = data.size();
 		double curFrac = 0;
 		ArrayList<PointAttrClass> attrClassList = new ArrayList<PointAttrClass>(
@@ -76,7 +84,7 @@ public class SplitSearchUnp extends AbstractSplitSearch {
 					frac -= samples[a - 1].getCDist();
 				// as per the paper, w = w * sampleBarArea / totalLocalPDFArea
 				// dividing by the totalLocalPDFArea, it normalizes the PDF
-				// this, w = w * normalizedSampleBarArea
+				// thus, w = w * normalizedSampleBarArea
 				// In the end, it will have added noTuples * noSamples pointAttrClass objects
 				attrClassList.add(new PointAttrClass(samples[a], data.get(j)
 				  .getCls(), data.get(j).getWeight() * frac / curFrac));
@@ -96,7 +104,12 @@ public class SplitSearchUnp extends AbstractSplitSearch {
 	}
 
 	protected Histogram[] SegGen(List<Tuple> data, int noCls, int attr) {
+		//SegGen calcula a distribuicao de pesos por classe, slide 8 (1.2, 1.5, 0.8, .0.5)
+		//O problema aqui eh que o start do histograma esta sempre em 0
+		//O end de um fica em 0 e do outro fica em 1
 
+
+		// sabemos que ateh o attrClassSet calculou os pesos direito pro height = 0, attr = 0
 		// int noCls = db.getNoCls();
 		PointAttrClass[] attrClassSet = generatePointAttrClass(data, attr);
 		if (attrClassSet.length == 0) {
@@ -157,11 +170,11 @@ public class SplitSearchUnp extends AbstractSplitSearch {
 				continue;
 
 			getSplit().run(segmentSet);
-			double localEnt = getSplit().getEnt();
+			double localEnt = getSplit().getEnt(); //entropia do split
 
 			if (splitData.getDispersion() - localEnt > 1E-12) {
 				splitData.setDispersion(localEnt);
-				splitData.setSplitPt(getSplit().getSplit());
+				splitData.setSplitPt(getSplit().getSplit()); //valor dos samples (do segmento) onde eh feito o split
 				splitData.setAttrNum(i);
 			}
 		}

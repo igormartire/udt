@@ -227,12 +227,13 @@ public class SampleDataGen extends RangeDataGen {
 						writer.write(dataArray[k] + GlobalParam.SEPERATOR);
 						continue;
 					}
-					PointAttribute t = new PointAttribute(Double.parseDouble(dataArray[k]));
-					RangeAttribute rt = genError(t, k);
+					double value = Double.parseDouble(dataArray[k]);
+					PointAttribute t = new PointAttribute(value);
+					RangeAttribute rt = genError(t, k); // now I could remove that
 
-					Range rg = createPDF(getFileName(input, i, k),
-					  rt.getStart(), rt.getEnd());
+					Range rg = createPDF(getFileName(input, i, k), value);
 					// I don' get why this - 0.01 and + 0.01. Shouldn't these values depend on the width of the attribute?
+					// TODO: how is this information about the Range used by the Decision Tree?
 					writer.write((rg.getStart() - 0.01) + GlobalParam.TO
 					  + (rg.getEnd() + 0.01) + GlobalParam.SEPERATOR);
 				}
@@ -277,14 +278,13 @@ public class SampleDataGen extends RangeDataGen {
 						writer.write(dataArray[k] + GlobalParam.SEPERATOR);
 						continue;
 					}
-					PointAttribute t = new PointAttribute(Double.parseDouble(dataArray[k]));
-					RangeAttribute rt = genError(t, k);
+					double value = Double.parseDouble(dataArray[k]);
+					PointAttribute t = new PointAttribute(value);
+					RangeAttribute rt = genError(t, k); // now I could remove that
 
-					Range rg = createPDF(getFileName(test, i, k), rt
-					  .getAbsStart(), rt.getAbsEnd());
+					Range rg = createPDF(getFileName(test, i, k), value);
 					writer.write((rg.getStart() - 0.01) + GlobalParam.TO
 					  + (rg.getEnd() + 0.01) + GlobalParam.SEPERATOR);
-
 				}
 				writer.write(dataArray[dataArray.length - 1]);
 				writer.newLine();
@@ -301,49 +301,27 @@ public class SampleDataGen extends RangeDataGen {
 		}
 	}
 
-	public Range createPDF(String filename, double start, double end) {
+	public Range createPDF(String filename, double p) {
 
 		BufferedOutputStream writer = null;
 		try {
 			writer = new BufferedOutputStream(
 			  new FileOutputStream(filename));
-			double value = 0;
-			Random r = new Random(seed++);
 
-			double samples[] = new double[noSamples];
-			for (int i = 0; i < noSamples; i++) {
-				do
-					value = r.nextGaussian();
-				while (value >= NUM_STDEV / 2 || value <= -NUM_STDEV / 2);
-				samples[i] = value;
-			}
-			Arrays.sort(samples);
 			byte[] b;
-			for (int i = 0; i < noSamples; i++) {
-				// samples[i] == value in (-2, +2) representing a number of standard deviations
-				// (end - start) == fullwidth
-				// (end - start) / NUM_STDEV == width per std. dev.
-				// samples[i] * ((end - start) / NUM_STDEV) == the value of the sample given the attribute's reality (mean and std. dev)
-				//		but represented as a diff from the midpoint
-				// start + halfwidth == midpoint
-				// data = midpoint + sampled-diff-from-the-midpoint (could be + or -)
-				// Thus, data = sample point in between (-2 std. dev, +2 std. dev) from the mean
-				double data = start + (NUM_STDEV / 2 + samples[i]) * (end - start) / NUM_STDEV;
-				b = SampleByteArrayConvertor.doubleToByteArray(data);
-				writer.write(b, 0, 8);
-				// The probability is increased linearly, but the samples should resemble the gaussian distribution and so
-				// there would be more samples close to the mean and less further away. Given that, the effect is that the
-				// pdf will resemble the gaussian distribution, because you are not explicitly giving more cdist increase
-				// to a value, so you are allowing the gaussian distribution to dictate how fast it will grow, thus
-				// maintaining a gaussian distribution.
-				double cdist = (i + 1) * 1.0 / noSamples;
-				// in the final iteration, cdist = 1
-				b = SampleByteArrayConvertor.doubleToByteArray(cdist);
-				writer.write(b, 0, 8);
-			}
+			// Sample 0
+			b = SampleByteArrayConvertor.doubleToByteArray(0); // value
+			writer.write(b, 0, 8);
+			b = SampleByteArrayConvertor.doubleToByteArray(1 - p); // cdist
+			writer.write(b, 0, 8);
 
-			Range rg = new Range(start + (NUM_STDEV / 2 + samples[0]) * (end - start) / NUM_STDEV,
-			  start + (NUM_STDEV / 2 + samples[noSamples - 1]) * (end - start) / NUM_STDEV);
+			// Sample 1
+			b = SampleByteArrayConvertor.doubleToByteArray(1); // value
+			writer.write(b, 0, 8);
+			b = SampleByteArrayConvertor.doubleToByteArray(1); // cdist
+			writer.write(b, 0, 8);
+
+			Range rg = new Range(0, 1);
 
 			return rg;
 		} catch (IOException e) {
@@ -358,6 +336,64 @@ public class SampleDataGen extends RangeDataGen {
 		}
 		return null;
 	}
+
+//	public Range createPDF(String filename, double start, double end) {
+//
+//		BufferedOutputStream writer = null;
+//		try {
+//			writer = new BufferedOutputStream(
+//			  new FileOutputStream(filename));
+//			double value = 0;
+//			Random r = new Random(seed++);
+//
+//			double samples[] = new double[noSamples];
+//			for (int i = 0; i < noSamples; i++) {
+//				do
+//					value = r.nextGaussian();
+//				while (value >= NUM_STDEV / 2 || value <= -NUM_STDEV / 2);
+//				samples[i] = value;
+//			}
+//			Arrays.sort(samples);
+//			byte[] b;
+//			for (int i = 0; i < noSamples; i++) {
+//				// samples[i] == value in (-2, +2) representing a number of standard deviations
+//				// (end - start) == fullwidth
+//				// (end - start) / NUM_STDEV == width per std. dev.
+//				// samples[i] * ((end - start) / NUM_STDEV) == the value of the sample given the attribute's reality (mean and std. dev)
+//				//		but represented as a diff from the midpoint
+//				// start + halfwidth == midpoint
+//				// data = midpoint + sampled-diff-from-the-midpoint (could be + or -)
+//				// Thus, data = sample point in between (-2 std. dev, +2 std. dev) from the mean
+//				double data = start + (NUM_STDEV / 2 + samples[i]) * (end - start) / NUM_STDEV;
+//				b = SampleByteArrayConvertor.doubleToByteArray(data);
+//				writer.write(b, 0, 8);
+//				// The probability is increased linearly, but the samples should resemble the gaussian distribution and so
+//				// there would be more samples close to the mean and less further away. Given that, the effect is that the
+//				// pdf will resemble the gaussian distribution, because you are not explicitly giving more cdist increase
+//				// to a value, so you are allowing the gaussian distribution to dictate how fast it will grow, thus
+//				// maintaining a gaussian distribution.
+//				double cdist = (i + 1) * 1.0 / noSamples;
+//				// in the final iteration, cdist = 1
+//				b = SampleByteArrayConvertor.doubleToByteArray(cdist);
+//				writer.write(b, 0, 8);
+//			}
+//
+//			Range rg = new Range(start + (NUM_STDEV / 2 + samples[0]) * (end - start) / NUM_STDEV,
+//			  start + (NUM_STDEV / 2 + samples[noSamples - 1]) * (end - start) / NUM_STDEV);
+//
+//			return rg;
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//			log.error("Error in reading samples!");
+//		} finally {
+//			try {
+//				if (writer != null) writer.close();
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//		}
+//		return null;
+//	}
 
 	public int getNoSamples() {
 		return noSamples;

@@ -1,3 +1,8 @@
 *
 !src
 !.gitignore
+!datasets/
+datasets/*
+!datasets/igor/
+!datasets/igor/*
+.DS_Store

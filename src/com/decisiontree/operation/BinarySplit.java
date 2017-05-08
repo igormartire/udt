@@ -91,7 +91,7 @@ public class BinarySplit implements Split {
 
 		threshold = minEnt;
 		if (min != -1)
-			localOptimal = segments[min].getValue();
+			localOptimal = segments[min].getValue(); //valor de separacao, valor do split, valor do sample em q foi feito o split
 
 	}
 

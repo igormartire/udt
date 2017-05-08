@@ -35,7 +35,7 @@ public class GlobalParam {
 	public static final int SAMPLING = 10;
 	public static final int NOFOLD = 10;
 	public static final int DEFAULT_PARTITION = 2;
-	public static final int DEFAULT_NO_SAMPLES = 100;
+	public static final int DEFAULT_NO_SAMPLES = 2;
 	public static final long DEFAULT_SEED = 0;
 	public static final double DEFAULT_WIDTH = 0.1;
 	public static final double DEFAULT_NODESIZE = 1;

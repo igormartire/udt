@@ -60,7 +60,7 @@ public class SampleDataSetInit extends DataSetInit {
 	public SampleDataSetInit(String input, String name, int noSamples, boolean averaging) {
 		dataSet = new SampleDataSet(input, findNoCls(name), findNoAttr(name), noSamples);
 		dataSet.setClsNameList(findClsName(name));
-		preProcess(name);
+		preProcess(name); // set attributes names and if they are continuous or not
 		dataSet.setNoTuples(countNoTuples(input));
 		if (averaging) {
 			storeData(input, averaging);
