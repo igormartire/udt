@@ -217,6 +217,7 @@ public class UDTFunctions {
 			double accuracy = decisionTree.crossFold(training, nameFile);
 
 			accuracy = Math.rint(accuracy * 10000) / 10000;
+			System.out.println("Accuracy: " + accuracy);
 			result = GlobalParam.getNoEntCal() + "," + accuracy;
 
 		}

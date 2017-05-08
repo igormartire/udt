@@ -98,8 +98,39 @@ public class SampleClassification extends Classification {
 		SampleTree dTree = new SampleTree(getDataSet(), splitSearch, nodeSize, purityThreshold);
 		TreeNode tree = dTree.buildDTree(train, 0);
 
+		System.out.println("\n");
+		System.out.println("Fold: " + (fold+1));
+		printTree(tree, 0);
+		System.out.println("\n");
+
 		List<Tuple> test = getTestData(getDataSet().getData(), fold);
 		return ClassifyAll(tree, test);
+
+	}
+
+	/**
+	 * Printing the decision tree in console. Currently use for DEBUGGING only.
+	 *
+	 * @param tree  the root node of the decision tree
+	 */
+	public void printTree(TreeNode tree, int level) {
+		if (tree.getType() == TreeNode.LEAF) {
+			for (int i = 0; i < level; i++)
+				System.out.print("\t");
+			System.out.println(" " + dataSet.getClsName(tree.getMajorityCls()) + " ( " + tree.getWeightedNoTuples() + ", " + tree.getError() + " )");
+			return;
+		}
+
+		for (int i = 0; i < Tree.NO_PARTITION; i++) {
+			for (int j = 0; j < level; j++)
+				System.out.print("\t");
+			System.out.print(dataSet.getAttrName(tree.getAttrNum()));
+			if (i == 0)
+				System.out.println(" ( " + "<= " + tree.getSplit() + " )");
+			else System.out.println(" ( " + "> " + tree.getSplit() + " )");
+
+			printTree(tree.getChild(i), level + 1);
+		}
 
 	}
 

@@ -1,1 +1,1 @@
--dataset datasets/igor/igor -property datasets/igor/igor -mode OVERALL -type ACCURACY -algorithm UDT -sample 2 -save results/result_igor.txt
+-dataset datasets/igor/igor -property datasets/igor/igor -mode OVERALL -type XFOLD -algorithm UDT -sample 2 -save results/result_igor.txt
