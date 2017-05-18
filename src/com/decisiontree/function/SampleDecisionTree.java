@@ -25,11 +25,18 @@ import com.decisiontree.build.SampleTree;
 import com.decisiontree.build.TreeNode;
 import com.decisiontree.data.SampleDataSet;
 import com.decisiontree.data.SampleDataSetInit;
+import com.decisiontree.data.SampleTuple;
 import com.decisiontree.data.Tuple;
 import com.decisiontree.operation.SplitSearch;
 import com.decisiontree.param.GlobalParam;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+
+import static com.decisiontree.param.GlobalParam.POINT_FILE;
 
 /**
  * SampleDecisionTree - builds a decision tree for given interval-valued sampled-dstributed dataset
@@ -83,6 +90,8 @@ public class SampleDecisionTree extends DecisionTree {
 		SampleDataSet dataSet = generateDataSet(training, nameFile, getNoSamples());
 
 		SampleClassification classification = new SampleClassification(dataSet, splitSearch);
+
+		System.out.println("Starting classification...");
 		return classification.crossAllFold(nodeSize, purity);
 	}
 

@@ -214,11 +214,11 @@ public class UDTFunctions {
 
 		} else if (type.equals(DecisionTree.XFOLD)) {
 			log.info("Finding Accuracy by crossfold");
-			double accuracy = decisionTree.crossFold(training, nameFile);
+			double gmean = decisionTree.crossFold(training, nameFile);
 
-			accuracy = Math.rint(accuracy * 10000) / 10000;
-			System.out.println("Accuracy: " + accuracy);
-			result = GlobalParam.getNoEntCal() + "," + accuracy;
+			gmean = Math.rint(gmean * 10000) / 10000;
+			System.out.println("Gmean: " + gmean);
+			result = GlobalParam.getNoEntCal() + "," + gmean;
 
 		}
 		return result;
@@ -260,7 +260,7 @@ public class UDTFunctions {
 	public String overallMode(String training, String testing, String nameFile, String algorithm, String type, int noSamples, double width, long seed, boolean varies,
 							  double nodeSize, double purityThreshold) {
 
-		generateMode(training, testing, nameFile, algorithm, noSamples, width, seed, varies);
+//		generateMode(training, testing, nameFile, algorithm, noSamples, width, seed, varies);
 		String result = buildMode(training, testing, nameFile, algorithm, type, nodeSize, purityThreshold);
 		GlobalParam.clearStoredValues();
 

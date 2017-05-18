@@ -24,9 +24,14 @@ import com.decisiontree.data.SampleAttribute;
 import com.decisiontree.data.SampleDataSet;
 import com.decisiontree.data.SampleTuple;
 import com.decisiontree.data.Tuple;
+import com.decisiontree.eval.ConfusionMatrix;
 import com.decisiontree.operation.SplitSearch;
 import org.apache.log4j.Logger;
+import com.decisiontree.measure.Times;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -92,20 +97,43 @@ public class SampleClassification extends Classification {
 
 	@Override
 	public double crossFold(int fold, double nodeSize, double purityThreshold) {
+		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
+		System.out.printf("Preparing training fold #%d...\n", fold+1);
 		List<Tuple> train = getTrainData(getDataSet().getData(), fold);
+
+		System.out.println("Starting to build tree...");
+
+		System.out.println(dateFormat.format(new Date()));
 
 		SampleTree dTree = new SampleTree(getDataSet(), splitSearch, nodeSize, purityThreshold);
 		TreeNode tree = dTree.buildDTree(train, 0);
 
-		System.out.println("\n");
-		System.out.println("Fold: " + (fold+1));
-		printTree(tree, 0);
-		System.out.println("\n");
+		System.out.println(dateFormat.format(new Date()));
 
+//		System.out.println("\n");
+//		System.out.println("Fold: " + (fold+1));
+//		printTree(tree, 0);
+//		System.out.println("\n");
+
+		System.out.printf("Preparing testing fold #%d...\n", fold+1);
 		List<Tuple> test = getTestData(getDataSet().getData(), fold);
-		return ClassifyAll(tree, test);
 
+		System.out.println("Starting to classify fold...");
+
+		System.out.println(dateFormat.format(new Date()));
+
+		ConfusionMatrix cm = ClassifyConfusionMatrix(tree, test);
+
+		System.out.println(dateFormat.format(new Date()));
+
+		System.out.println("\n\nAccuracy: " + cm.getAccuracy());
+		System.out.println("Gmean: " + cm.getGMean());
+		System.out.println("Sensitivity: " + cm.getSensitivity());
+		System.out.println("Specificity: " + cm.getSpecificity());
+		System.out.printf("TN: %.1f\tFN: %.1f\nFP: %.1f\tTP: %.1f\n", cm.tn, cm.fn, cm.fp, cm.tp);
+		System.out.println("\n\n");
+		return cm.getGMean();
 	}
 
 	/**

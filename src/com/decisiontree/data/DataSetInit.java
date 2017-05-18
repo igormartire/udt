@@ -213,7 +213,7 @@ public abstract class DataSetInit {
 	protected int countNoTuples(String input, String fileType) {
 		BufferedReader r = null;
 		try {
-			r = new BufferedReader(new FileReader(input + fileType));
+			r = new BufferedReader(new FileReader(input + POINT_FILE));
 
 			int count = 0;
 			while (r.readLine() != null) {

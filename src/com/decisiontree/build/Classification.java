@@ -22,6 +22,7 @@ package com.decisiontree.build;
 
 import com.decisiontree.data.DataSet;
 import com.decisiontree.data.Tuple;
+import com.decisiontree.eval.ConfusionMatrix;
 import com.decisiontree.operation.SplitSearch;
 import com.decisiontree.param.GlobalParam;
 import org.apache.log4j.Logger;
@@ -106,6 +107,20 @@ public abstract class Classification {
 		return count;
 	}
 
+	public ConfusionMatrix ClassifyConfusionMatrix(TreeNode tree, List<Tuple> test) {
+
+		ConfusionMatrix cm = new ConfusionMatrix();
+		Iterator<Tuple> iter = test.iterator();
+		while (iter.hasNext()) {
+			Tuple t = iter.next();
+			int guess = Classify(tree, t);
+			int expected = t.getCls();
+			cm.addCount(guess, expected);
+		}
+
+		return cm;
+	}
+
 
 	/**
 	 * Getting the percentage of tuples that are correctly classified.
@@ -184,7 +199,6 @@ public abstract class Classification {
 
 		return totalPercent / GlobalParam.NOFOLD;
 	}
-
 
 	/**
 	 * Get the training dataset

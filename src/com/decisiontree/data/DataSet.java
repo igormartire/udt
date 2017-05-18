@@ -184,6 +184,8 @@ public interface DataSet {
 	 */
 	public void setClsDistribution(int clsNum);
 
+	public void setClsDistribution(int clsNum, int add);
+
 	/**
 	 * Set the continuity of a given attribute number
 	 *

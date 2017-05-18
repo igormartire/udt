@@ -76,6 +76,24 @@ public class SampleTuple extends RangeTuple {
 		setAttributeSet(attrSet);
 	}
 
+	// @param data the line of the .data file to be converted to a SampleTuple
+	// My hardcorded sample tuple constructor. This will ignore the PDFs files and will create PDFs in memory
+	public SampleTuple(String data, int noAttr, int cls) {
+		super(noAttr, cls, 1.0);
+		String[] dataArray = data.split(GlobalParam.SEPERATOR);
+		Attribute[] attrSet = new Attribute[noAttr];
+		for (int i = 0; i < noAttr; i++) {
+			double p = Double.parseDouble(dataArray[i]);
+
+			Sample[] samples = new Sample[2];
+			samples[0] = new Sample(0.0, (1-p));
+			samples[1] = new Sample(1.0, 1.0);
+
+			attrSet[i] = new SampleAttribute(-0.01, 1.01, samples, false);
+		}
+		setAttributeSet(attrSet);
+	}
+
 	public SampleTuple(String data, int noAttr, int cls, double weight, int num, SampleDataSet db) {
 		this(data, noAttr, cls, weight, num, db, false);
 	}

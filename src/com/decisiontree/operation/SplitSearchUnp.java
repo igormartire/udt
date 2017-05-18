@@ -105,9 +105,6 @@ public class SplitSearchUnp extends AbstractSplitSearch {
 
 	protected Histogram[] SegGen(List<Tuple> data, int noCls, int attr) {
 		//SegGen calcula a distribuicao de pesos por classe, slide 8 (1.2, 1.5, 0.8, .0.5)
-		//O problema aqui eh que o start do histograma esta sempre em 0
-		//O end de um fica em 0 e do outro fica em 1
-
 
 		// sabemos que ateh o attrClassSet calculou os pesos direito pro height = 0, attr = 0
 		// int noCls = db.getNoCls();

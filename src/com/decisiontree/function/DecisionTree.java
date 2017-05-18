@@ -179,13 +179,13 @@ public abstract class DecisionTree {
 	protected abstract double findAccuracyByTree(TreeNode treeRoot, String testing, String nameFile);
 
 	/**
-	 * Find the cross-fold validataion accuracy
+	 * Find the cross-fold validataion gmean
 	 *
 	 * @param training the training data file
 	 * @param nameFile the property file
-	 * @return the cross-fold validation accuracy
+	 * @return the cross-fold validation gmean
 	 */
-	public abstract double crossFold(String training, String nameName);
+	public abstract double crossFold(String training, String nameFile);
 
 	/**
 	 * Get the algorithm (SplitSearch) to find the best split point

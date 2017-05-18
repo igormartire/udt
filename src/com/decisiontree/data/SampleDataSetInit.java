@@ -20,6 +20,7 @@
  */
 package com.decisiontree.data;
 
+import com.decisiontree.measure.MemoryMonitor;
 import com.decisiontree.param.GlobalParam;
 import org.apache.log4j.Logger;
 
@@ -28,6 +29,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.decisiontree.param.GlobalParam.POINT_FILE;
 
 /**
  * SampleDataSetInit - Initializes a SampleDataSet object.
@@ -74,23 +77,31 @@ public class SampleDataSetInit extends DataSetInit {
 	}
 
 	public void storeData(String input, boolean averaging) {
-
 		SampleDataSet dataSet = getDataSet();
 
-		BufferedReader reader = null;
-		try {
+		//Generate dataset tuples
+		try (BufferedReader reader = new BufferedReader(new FileReader(input + POINT_FILE))){
 
 			int noTuples = dataSet.getNoTuples();
+			int noAttr = dataSet.getNoAttr();
+			int noCls = dataSet.getNoCls();
 
-			reader = new BufferedReader(new FileReader(input + SAMPLE_FILE));
+			int countCls[] = new int[noCls];
+			MemoryMonitor memMonitor = new MemoryMonitor();
 
-			String data = "";
-			List<Tuple> t = new ArrayList<Tuple>(noTuples);
+			String data;
+			List<Tuple> t = new ArrayList<>(noTuples);
 			for (int i = 0; (data = reader.readLine()) != null && i < noTuples; i++) {
+				System.out.printf("Generating tuple %d/%d...\n", i+1, noTuples);
+				memMonitor.printMemoryUsage(i);
 				int index = data.lastIndexOf(GlobalParam.SEPERATOR);
 				int cls = dataSet.getClsNum(data.substring(index + 1));
-				dataSet.setClsDistribution(cls);
-				t.add(new SampleTuple(data, dataSet.getNoAttr(), cls, i, dataSet, averaging));
+				countCls[cls]++;
+				t.add(new SampleTuple(data, noAttr, cls));
+			}
+
+			for (int i = 0; i < noCls; i++) {
+				dataSet.setClsDistribution(i, countCls[i]);
 			}
 
 			dataSet.setData(t);
@@ -98,14 +109,42 @@ public class SampleDataSetInit extends DataSetInit {
 			e.printStackTrace();
 			log.error("No dataset file or file cannot access. Please try again!");
 			System.exit(1);
-		} finally {
-			try {
-				if (reader != null) reader.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
 		}
 	}
+
+//	public void storeData(String input, boolean averaging) {
+//
+//		SampleDataSet dataSet = getDataSet();
+//
+//		BufferedReader reader = null;
+//		try {
+//
+//			int noTuples = dataSet.getNoTuples();
+//
+//			reader = new BufferedReader(new FileReader(input + SAMPLE_FILE));
+//
+//			String data = "";
+//			List<Tuple> t = new ArrayList<Tuple>(noTuples);
+//			for (int i = 0; (data = reader.readLine()) != null && i < noTuples; i++) {
+//				int index = data.lastIndexOf(GlobalParam.SEPERATOR);
+//				int cls = dataSet.getClsNum(data.substring(index + 1));
+//				dataSet.setClsDistribution(cls);
+//				t.add(new SampleTuple(data, dataSet.getNoAttr(), cls, i, dataSet, averaging));
+//			}
+//
+//			dataSet.setData(t);
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//			log.error("No dataset file or file cannot access. Please try again!");
+//			System.exit(1);
+//		} finally {
+//			try {
+//				if (reader != null) reader.close();
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//		}
+//	}
 
 
 	@Override

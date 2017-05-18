@@ -191,6 +191,10 @@ public class PointDataSet implements DataSet {
 		clsDist.set(cls, clsDist.get(cls) + 1);
 	}
 
+	public void setClsDistribution(int cls, int add) {
+		clsDist.set(cls, clsDist.get(cls) + add);
+	}
+
 	public void setContinous(int attrNum, boolean continuous) {
 		continuousList.set(attrNum, continuous);
 	}
