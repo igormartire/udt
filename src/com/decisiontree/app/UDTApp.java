@@ -430,6 +430,7 @@ class UDTApp {
 
 			start(); // start the building
 		} catch (Exception e) {
+			e.printStackTrace();
 			log.error("Internal errors occur. The program terminates.", e);
 			System.err.println("Internal Errors. Please check if your input is incorrect.");
 			System.exit(1);

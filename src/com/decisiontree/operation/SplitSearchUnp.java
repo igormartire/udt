@@ -124,7 +124,12 @@ public class SplitSearchUnp extends AbstractSplitSearch {
 		tempSegmentSet[0] = new Histogram(noCls);
 		tempSegmentSet[0].setHist(attrClassSet[0].getValue(), attrClassSet[0]
 		  .getCls(), attrClassSet[0].getWeight());
+		double ignoredCount = 0;
 		for (int i = 1; i < attrClassSet.length; i++) {
+			if (attrClassSet[i].getValue() == 0 && ((Sample)attrClassSet[i].getAttribute()).getCDist() == 1) {
+				ignoredCount++;
+				continue;
+			}
 			// occurs when there is more than a sample in the same point
 			if (attrClassSet[i].getValue() == tempSegmentSet[count].getValue())
 				tempSegmentSet[count].setHist(attrClassSet[i].getValue(),
@@ -141,6 +146,8 @@ public class SplitSearchUnp extends AbstractSplitSearch {
 			segmentSet[i] = tempSegmentSet[i];
 		}
 
+//		System.out.printf("Ignored proportion: %.2f%%\n", 100.0*ignoredCount/attrClassSet.length);
+
 		return segmentSet;
 	}
 
@@ -152,7 +159,7 @@ public class SplitSearchUnp extends AbstractSplitSearch {
 
 		double totalTuples = Tuple.countWeightedTuples(data);
 
-		getSplit().init(totalTuples, noCls);
+//		getSplit().init(totalTuples, noCls);
 //		BinarySplit binarySplit = new BinarySplit(dispersion, noCls);
 		for (int i = 0; i < noAttr; i++) {
 			Histogram segmentSet[] = SegGen(data, noCls, i);
@@ -166,6 +173,14 @@ public class SplitSearchUnp extends AbstractSplitSearch {
 			if (noSegments <= 1)
 				continue;
 
+			totalTuples = 0;
+			for (Histogram hist: segmentSet) {
+				for (double w: hist.getAllCls()) {
+					totalTuples += w;
+				}
+			}
+
+			getSplit().init(totalTuples, noCls);
 			getSplit().run(segmentSet);
 			double localEnt = getSplit().getEnt(); //entropia do split
 
