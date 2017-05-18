@@ -96,7 +96,7 @@ public class SampleClassification extends Classification {
 	}
 
 	@Override
-	public double crossFold(int fold, double nodeSize, double purityThreshold) {
+	public ConfusionMatrix crossFold(int fold, double nodeSize, double purityThreshold) {
 		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
 		System.out.printf("Preparing training fold #%d...\n", fold+1);
@@ -133,7 +133,7 @@ public class SampleClassification extends Classification {
 		System.out.println("Specificity: " + cm.getSpecificity());
 		System.out.printf("TN: %.1f\tFN: %.1f\nFP: %.1f\tTP: %.1f\n", cm.tn, cm.fn, cm.fp, cm.tp);
 		System.out.println("\n\n");
-		return cm.getGMean();
+		return cm;
 	}
 
 	/**

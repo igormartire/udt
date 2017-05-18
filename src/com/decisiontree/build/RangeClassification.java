@@ -24,6 +24,7 @@ import com.decisiontree.data.RangeAttribute;
 import com.decisiontree.data.RangeDataSet;
 import com.decisiontree.data.RangeTuple;
 import com.decisiontree.data.Tuple;
+import com.decisiontree.eval.ConfusionMatrix;
 import com.decisiontree.operation.SplitSearch;
 
 import java.util.List;
@@ -88,7 +89,7 @@ public class RangeClassification extends Classification {
 	}
 
 	@Override
-	public double crossFold(int fold, double nodeSize, double purity) {
+	public ConfusionMatrix crossFold(int fold, double nodeSize, double purity) {
 
 		List<Tuple> train = getTrainData(getDataSet().getData(), fold);
 
@@ -96,8 +97,8 @@ public class RangeClassification extends Classification {
 		TreeNode tree = dTree.buildDTree(train, 0);
 
 		List<Tuple> test = getTestData(getDataSet().getData(), fold);
-		return ClassifyAll(tree, test);
-
+//		return ClassifyAll(tree, test);
+		return null;
 	}
 
 	@Override

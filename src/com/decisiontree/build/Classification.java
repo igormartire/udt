@@ -181,23 +181,35 @@ public abstract class Classification {
 	 * @param purityThreshold the purity of the node for the tree to stop
 	 * @return percentage of tuples that are correctly classified
 	 */
-	protected abstract double crossFold(int fold, double nodeSize, double purityThreshold);
+	protected abstract ConfusionMatrix crossFold(int fold, double nodeSize, double purityThreshold);
 
 	/**
 	 * Doing cross-fold validation for all the folds
 	 *
 	 * @param nodeSize
 	 * @param purityThreshold
-	 * @return the overall classifcation accuracy
+	 * @return the overall classifcation gmean
 	 */
 	public double crossAllFold(double nodeSize, double purityThreshold) {
 
 		double totalPercent = 0.0;
+		ConfusionMatrix[] cms = new ConfusionMatrix[GlobalParam.NOFOLD];
 		for (int i = 0; i < GlobalParam.NOFOLD; i++) {
-			totalPercent += crossFold(i, nodeSize, purityThreshold);
+			cms[i] = crossFold(i, nodeSize, purityThreshold);
 		}
 
-		return totalPercent / GlobalParam.NOFOLD;
+		double totalSpecificity = 0.0;
+		double totalSensitivity = 0.0;
+		for (int i = 0; i < GlobalParam.NOFOLD; i++) {
+			totalSpecificity += cms[i].getSpecificity();
+			totalSensitivity += cms[i].getSensitivity();
+		}
+
+		double avgSpecificity = totalSpecificity/GlobalParam.NOFOLD;
+		double avgSensitivity = totalSensitivity/GlobalParam.NOFOLD;
+		double gmean = Math.sqrt(avgSpecificity * avgSensitivity );
+
+		return gmean;
 	}
 
 	/**

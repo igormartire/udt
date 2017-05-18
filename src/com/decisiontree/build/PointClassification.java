@@ -23,6 +23,7 @@ package com.decisiontree.build;
 import com.decisiontree.data.PointAttribute;
 import com.decisiontree.data.PointDataSet;
 import com.decisiontree.data.Tuple;
+import com.decisiontree.eval.ConfusionMatrix;
 import com.decisiontree.operation.SplitSearch;
 
 import java.util.List;
@@ -74,7 +75,7 @@ public class PointClassification extends Classification {
 	}
 
 	@Override
-	protected double crossFold(int fold, double nodeSize, double purityThreshold) {
+	protected ConfusionMatrix crossFold(int fold, double nodeSize, double purityThreshold) {
 
 		List<Tuple> train = getTrainData(getDataSet().getData(), fold);
 
@@ -84,8 +85,8 @@ public class PointClassification extends Classification {
 
 		List<Tuple> test = getTestData(getDataSet().getData(), fold);
 
-		return ClassifyAll(tree, test);
-
+//		return ClassifyAll(tree, test);
+		return null;
 	}
 
 	@Override
